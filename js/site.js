@@ -66,6 +66,13 @@
     return `https://wa.me/${number}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
   }
 
+  // The Facebook setting can be a full page link or just a page name.
+  function facebookUrl() {
+    const value = (content.settings.facebook || "").trim();
+    if (!value) return null;
+    return /^https?:\/\//i.test(value) ? value : `https://www.facebook.com/search/top?q=${encodeURIComponent(value)}`;
+  }
+
   function imageEl(url, alt, className = "") {
     if (!url) {
       const div = document.createElement("div");
@@ -120,7 +127,17 @@
       $("[data-housecall-fee]").closest("li").hidden = true;
       $("[data-housecall-check]").closest(".toggle").hidden = true;
     }
-    if (!s.facebook) $(".gallery-cta").hidden = true;
+    const fb = facebookUrl();
+    if (fb) {
+      const link = document.createElement("a");
+      link.href = fb;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "KX Nyalungu ↗";
+      $(".gallery-cta strong").replaceChildren(link);
+    } else {
+      $(".gallery-cta").hidden = true;
+    }
     $("[data-year]").textContent = new Date().getFullYear();
   }
 
@@ -271,7 +288,7 @@
     if (s.phone) add("📞", `${s.phone} · call`, `tel:${s.phone.replace(/\s/g, "")}`);
     const wa = whatsappUrl();
     if (wa) add("💬", "WhatsApp us", wa);
-    if (s.facebook) add("📘", `Facebook: ${s.facebook}`, `https://www.facebook.com/search/top?q=${encodeURIComponent(s.facebook)}`);
+    if (facebookUrl()) add("📘", "Facebook: KX Nyalungu", facebookUrl());
     if (s.instagram) add("📸", `Instagram: ${s.instagram}`, `https://instagram.com/${s.instagram.replace(/^@/, "")}`);
     if (s.email) add("✉️", s.email, `mailto:${s.email}`);
     if (s.address) add("📍", s.address, `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}`);

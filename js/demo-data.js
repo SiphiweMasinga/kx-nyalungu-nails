@@ -12,7 +12,7 @@
       whatsapp: "27716279835",
       email: "",
       address: "",
-      facebook: "KX Nyalungu",
+      facebook: "https://www.facebook.com/share/1HYaTmmz4T/",
       instagram: "",
       tiktok: "",
       deposit_type: "percent",

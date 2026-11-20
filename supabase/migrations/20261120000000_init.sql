@@ -259,7 +259,7 @@ values (
   'Acrylics, gel and nail art done with love and a sharp eye for detail — from clean French tips to chrome, ombré and 3D flowers. Visit the studio or book a house call.',
   '0716279835',
   '27716279835',
-  'KX Nyalungu',
+  'https://www.facebook.com/share/1HYaTmmz4T/',
   'A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours'' notice if you need to reschedule.'
 )
 on conflict (id) do nothing;
