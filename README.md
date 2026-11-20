@@ -6,7 +6,6 @@ A modern, mobile-first website for KX Nyalungu Nails with:
 - **Specials** the owner posts herself, with start and end dates (they disappear automatically)
 - **Online bookings** — clients choose a service, add-ons, date and an open time slot
 - **Online deposits** through **PayFast** (card, Instant EFT, SnapScan and more); bookings are confirmed automatically when PayFast reports the payment
-- **AI assistant** powered by **Claude** that answers questions using the live prices, specials and hours
 - **Owner dashboard** (`/admin`) to manage bookings, specials, prices, add-ons, gallery photos, hours, days off, deposit rules and contact details — no coding needed
 
 Without a backend connected, the site runs in **demo mode**: it shows the real price list with sample
@@ -18,10 +17,10 @@ opening hours, and bookings are sent to WhatsApp instead of being saved.
 |---|---|
 | Website (static HTML/CSS/JS) | GitHub Pages |
 | Database, owner login, photo storage | Supabase |
-| Bookings, availability, AI assistant | `supabase/functions/kx-api` (Supabase Edge Function) |
+| Bookings and availability | `supabase/functions/kx-api` (Supabase Edge Function) |
 | Payment confirmation from PayFast | `supabase/functions/payfast-itn` |
 
-Secret keys (Supabase service role, PayFast, Anthropic) live only in Supabase Edge Function secrets —
+Secret keys (Supabase service role, PayFast) live only in Supabase Edge Function secrets —
 never in the website files.
 
 ## Setup
@@ -44,7 +43,6 @@ never in the website files.
    | Secret | Value |
    |---|---|
    | `SITE_URL` | The live site address, e.g. `https://siphiwemasinga.github.io/kx-nyalungu-nails` |
-   | `ANTHROPIC_API_KEY` | From [console.anthropic.com](https://console.anthropic.com) — powers the AI assistant |
    | `RATE_LIMIT_SALT` | Any long random string |
    | `PAYFAST_MERCHANT_ID` | From the PayFast dashboard → Settings → Integration |
    | `PAYFAST_MERCHANT_KEY` | Same place |
@@ -80,14 +78,6 @@ Go to `/admin` on the live site and log in. Tabs:
 - **Gallery** — upload photos straight from her phone and add captions
 - **Hours** — opening hours per day and days off
 - **Settings** — contact details, deposit rule (currently a fixed R50), house call fee, booking policy
-
-## AI assistant
-
-The assistant uses Claude (`claude-opus-5-5`) through the official Anthropic SDK. Each answer is
-grounded in the live business facts from the database (services, add-ons, specials, hours, policy),
-so when the owner changes a price the assistant knows straight away. It is told never to invent
-prices or confirm bookings, and it is rate-limited per visitor to control cost. To reduce cost
-further, the model can be changed in `supabase/functions/kx-api/index.ts`.
 
 ## Photos
 

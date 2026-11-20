@@ -1,5 +1,5 @@
 // KX Nyalungu Nails — public site logic.
-// With Supabase configured, content comes from the database and bookings/chat go through the
+// With Supabase configured, content comes from the database and bookings go through the
 // kx-api Edge Function. Without it, the site runs in demo mode on js/demo-data.js.
 (() => {
   const cfg = window.KX_CONFIG ?? {};
@@ -660,91 +660,6 @@
     $(".booking-summary").hidden = true;
   }
 
-  // ---------- AI assistant ----------
-
-  const chatPanel = $("#chat-panel");
-  const chatToggle = $(".chat-toggle");
-  const chatMessages = $(".chat-messages");
-  const chatInput = $("#chat-input");
-  const history = [];
-
-  function addMessage(text, who) {
-    const p = document.createElement("p");
-    p.className = `msg ${who === "user" ? "msg-user" : ""}`;
-    p.textContent = text;
-    chatMessages.append(p);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return p;
-  }
-
-  // Demo mode answers built from the sample data.
-  function demoAnswer(question) {
-    const q = question.toLowerCase();
-    const s = content.settings;
-    if (/acrylic/.test(q)) {
-      const list = content.services.filter((x) => /acrylic/i.test(x.name)).map((x) => `${x.name}: ${rand(x.price_cents)}`);
-      return `${list.join("\n")}\nTap "Book now" to pick a time 💅`;
-    }
-    if (/gel/.test(q)) {
-      return content.services.filter((x) => /gel/i.test(x.name)).map((x) => `${x.name}: ${rand(x.price_cents)}`).join("\n");
-    }
-    if (/house|home|come to/.test(q)) return `Yes! House calls are an extra ${rand(s.house_call_fee_cents)}. Tick "House call" when you book.`;
-    if (/deposit|pay|eft/.test(q)) {
-      const amount = s.deposit_type === "fixed" ? `An R${s.deposit_value}` : `A ${s.deposit_value}%`;
-      return `${amount} deposit secures your booking; the balance is paid at your appointment.`;
-    }
-    if (/special|promo|deal/.test(q)) return content.specials.length ? content.specials.map((x) => `${x.title}: ${x.description}`).join("\n") : "No specials right now — keep an eye on this page! 🌷";
-    if (/chrome|flower|ombr|extra|add/.test(q)) return content.addons.map((a) => `${a.name}: +${rand(a.price_cents)}`).join("\n");
-    if (/hour|open|time|when|weekend|holiday/.test(q)) {
-      return "Weekdays 14:00–17:00 (only 2 bookings a day), weekends 09:00–17:00 (4 bookings a day), and during school holidays 09:00–17:00 every day. Spots go fast — tap \"Book now\" to see open times 💅";
-    }
-    if (/price|cost|how much/.test(q)) return content.services.map((x) => `${x.name}: ${rand(x.price_cents)}`).join("\n");
-    return `I can help with prices, add-ons, deposits and house calls. For anything else, WhatsApp us on ${s.phone || "the number below"}!`;
-  }
-
-  async function ask(question) {
-    const text = question.trim();
-    if (!text) return;
-    addMessage(text, "user");
-    history.push({ role: "user", content: text });
-    const pending = addMessage("Typing…", "assistant");
-    pending.classList.add("msg-typing");
-    try {
-      const reply = live ? (await api("chat", { messages: history.slice(-12) })).reply : demoAnswer(text);
-      pending.textContent = reply;
-      history.push({ role: "assistant", content: reply });
-    } catch (error) {
-      pending.textContent = error.message;
-      history.pop();
-    }
-    pending.classList.remove("msg-typing");
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function setupChat() {
-    addMessage(`Hi! 💅 I'm the KX assistant. Ask me about prices, add-ons, specials, house calls or booking.`, "assistant");
-    chatToggle.addEventListener("click", () => {
-      const open = chatPanel.hidden;
-      chatPanel.hidden = !open;
-      chatToggle.setAttribute("aria-expanded", String(open));
-      if (open) chatInput.focus();
-    });
-    $(".chat-close").addEventListener("click", () => {
-      chatPanel.hidden = true;
-      chatToggle.setAttribute("aria-expanded", "false");
-      chatToggle.focus();
-    });
-    $(".chat-form").addEventListener("submit", (event) => {
-      event.preventDefault();
-      ask(chatInput.value);
-      chatInput.value = "";
-    });
-    $(".chat-suggestions").addEventListener("click", (event) => {
-      const button = event.target.closest("[data-ask]");
-      if (button) ask(button.dataset.ask);
-    });
-  }
-
   // ---------- Navigation ----------
 
   function setupNav() {
@@ -836,7 +751,6 @@
     setupBookingForm();
     updateSummary();
     loadTimes();
-    setupChat();
     setupReveal();
   }
 
