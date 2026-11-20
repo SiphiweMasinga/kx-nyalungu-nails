@@ -564,15 +564,26 @@
   // ---------- Settings ----------
 
   const settingsForm = $("[data-settings-form]");
+  let currentOwnerPhoto = "";
+
+  // Relative paths (like images/owner.jpg) live on the website, one folder up from /admin.
+  const sitePath = (url) => (url && !/^https?:\/\//.test(url) ? `../${url}` : url);
 
   async function loadSettings() {
     const s = await run(sb.from("settings").select("*").eq("id", 1).single());
     for (const element of settingsForm.elements) {
-      if (!element.name) continue;
+      if (!element.name || element.type === "file") continue;
       if (element.name === "house_call_fee") element.value = s.house_call_fee_cents / 100;
       else if (element.name in s) element.value = s[element.name] ?? "";
     }
+    currentOwnerPhoto = s.owner_photo_url;
+    $("[data-owner-preview]").src = sitePath(s.owner_photo_url);
   }
+
+  settingsForm.elements.owner_photo.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) $("[data-owner-preview]").src = URL.createObjectURL(file);
+  });
 
   settingsForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -594,10 +605,23 @@
       owner_notification_email: f.owner_notification_email.value.trim(),
       eft_details: f.eft_details.value.trim(),
       policies: f.policies.value.trim(),
+      owner_name: f.owner_name.value.trim(),
+      owner_bio: f.owner_bio.value.trim(),
       updated_at: new Date().toISOString(),
     };
     if (record.deposit_type === "percent" && record.deposit_value > 100) return toast("A percentage deposit can't be more than 100%.", true);
-    await run(sb.from("settings").update(record).eq("id", 1), "Settings saved");
+    try {
+      const photo = f.owner_photo.files[0];
+      if (photo) {
+        record.owner_photo_url = await uploadImage(photo, "owner");
+        if (currentOwnerPhoto) removeStoredImage(currentOwnerPhoto);
+        currentOwnerPhoto = record.owner_photo_url;
+        f.owner_photo.value = "";
+      }
+      await run(sb.from("settings").update(record).eq("id", 1), "Settings saved");
+    } catch (error) {
+      toast(error.message, true);
+    }
   });
 
   // "New" buttons

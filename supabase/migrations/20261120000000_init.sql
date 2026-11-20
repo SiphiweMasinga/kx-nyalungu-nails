@@ -48,6 +48,9 @@ create table public.settings (
   eft_details text not null default '',
   policies text not null default '',
   owner_notification_email text not null default '',
+  owner_name text not null default '',
+  owner_bio text not null default '',
+  owner_photo_url text not null default 'images/owner.jpg',
   updated_at timestamptz not null default now()
 );
 alter table public.settings enable row level security;
@@ -60,7 +63,7 @@ revoke select on public.settings from anon;
 grant select (
   id, business_name, tagline, about, phone, whatsapp, email, address, facebook, instagram,
   tiktok, deposit_type, deposit_value, house_call_fee_cents, slot_interval_minutes,
-  booking_notice_hours, eft_details, policies, updated_at
+  booking_notice_hours, eft_details, policies, owner_name, owner_bio, owner_photo_url, updated_at
 ) on public.settings to anon;
 
 -- ---------- Menu ----------
@@ -252,7 +255,7 @@ create policy "Admins delete media" on storage.objects
 
 -- ---------- Starting content (from the KX Nyalungu price list) ----------
 
-insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies)
+insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio)
 values (
   1,
   'Treat your nails, treat yourself 🌷',
@@ -260,7 +263,8 @@ values (
   '0716279835',
   '27716279835',
   'https://www.facebook.com/share/1HYaTmmz4T/',
-  'A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours'' notice if you need to reschedule.'
+  'A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours'' notice if you need to reschedule.',
+  'Hi, I''m the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.'
 )
 on conflict (id) do nothing;
 

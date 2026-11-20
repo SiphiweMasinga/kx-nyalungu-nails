@@ -21,6 +21,10 @@
       slot_interval_minutes: 30,
       booking_notice_hours: 2,
       eft_details: "",
+      owner_name: "",
+      owner_photo_url: "images/owner.jpg",
+      owner_bio:
+        "Hi, I'm the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.",
       policies:
         "A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours' notice if you need to reschedule.",
     },
@@ -42,11 +46,10 @@
     // Real specials are posted by the owner from her dashboard.
     specials: [],
     gallery: [
-      { id: "g1", image_url: "images/work-1.jpg", caption: "Black French stiletto with 3D flowers" },
-      { id: "g2", image_url: "images/work-2.jpg", caption: "Red French tips with flower art" },
-      { id: "g3", image_url: "images/work-3.jpg", caption: "Pink polka-dot French" },
-      { id: "g4", image_url: "images/work-4.jpg", caption: "Red French with cherry dots" },
-      { id: "g5", image_url: "images/work-5.jpg", caption: "Neon pink French, square" },
+      { id: "g1", image_url: "images/work-1.jpg", caption: "Black French stiletto with pink 3D flowers" },
+      { id: "g2", image_url: "images/work-2.jpg", caption: "Red French stiletto with flower art" },
+      { id: "g3", image_url: "images/work-3.jpg", caption: "Animal print & 3D flower stiletto" },
+      { id: "g4", image_url: "images/work-4.jpg", caption: "Pink French, square" },
     ],
     // 0 = Sunday … 6 = Saturday. Sample hours — the owner sets real ones in the dashboard.
     hours: [

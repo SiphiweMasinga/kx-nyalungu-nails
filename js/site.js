@@ -20,7 +20,7 @@
     if (!sb) return { ...demo };
     const today = new Date().toISOString().slice(0, 10);
     const settingsColumns =
-      "business_name, tagline, about, phone, whatsapp, email, address, facebook, instagram, tiktok, deposit_type, deposit_value, house_call_fee_cents, slot_interval_minutes, booking_notice_hours, eft_details, policies";
+      "business_name, tagline, about, phone, whatsapp, email, address, facebook, instagram, tiktok, deposit_type, deposit_value, house_call_fee_cents, slot_interval_minutes, booking_notice_hours, eft_details, policies, owner_name, owner_bio, owner_photo_url";
     const [settings, services, addons, specials, gallery, hours, blocked] = await Promise.all([
       sb.from("settings").select(settingsColumns).eq("id", 1).single(),
       sb.from("services").select("*").eq("active", true).order("sort"),
@@ -261,6 +261,28 @@
       grid.append(figure);
     });
     if (!content.gallery.length) $("#gallery").hidden = true;
+  }
+
+  function renderAbout() {
+    const s = content.settings;
+    if (!s.owner_bio && !s.owner_photo_url) {
+      $("#about").hidden = true;
+      $('a[href="#about"]').hidden = true;
+      return;
+    }
+    $("[data-owner-bio]").textContent = s.owner_bio || "";
+    if (s.owner_name) {
+      const heading = $("[data-owner-heading]");
+      heading.textContent = "Meet ";
+      const name = document.createElement("span");
+      name.className = "chrome-text";
+      name.textContent = `${s.owner_name}.`;
+      heading.append(name);
+      $("[data-owner-photo]").alt = `${s.owner_name}, owner of KX Nyalungu Nails`;
+    }
+    const photo = $("[data-owner-photo]");
+    if (s.owner_photo_url) photo.src = s.owner_photo_url;
+    else photo.closest("figure").hidden = true;
   }
 
   function renderVisit() {
@@ -723,6 +745,7 @@
     renderSpecials();
     renderMenu();
     renderGallery();
+    renderAbout();
     renderVisit();
     setupBookingForm();
     updateSummary();

@@ -71,6 +71,8 @@ type Settings = {
   eft_details: string;
   policies: string;
   owner_notification_email: string;
+  owner_name: string;
+  owner_bio: string;
 };
 
 async function loadSettings(): Promise<Settings> {
@@ -368,6 +370,7 @@ async function businessFacts(): Promise<string> {
   return [
     `Business: ${settings.business_name}. Tagline: ${settings.tagline}`,
     settings.about,
+    settings.owner_bio ? `About the owner${settings.owner_name ? ` (${settings.owner_name})` : ""}: ${settings.owner_bio}` : "",
     `Contact: phone/WhatsApp ${settings.phone}${settings.facebook ? `; Facebook: ${settings.facebook}` : ""}${settings.instagram ? `; Instagram: ${settings.instagram}` : ""}${settings.address ? `; Address: ${settings.address}` : ""}.`,
     "Services:",
     ...(services ?? []).map((s) => `- ${s.name} (${s.category}): ${rand(s.price_cents)}, about ${s.duration_minutes} min. ${s.description}`),

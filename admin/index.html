@@ -156,6 +156,17 @@
               </div>
             </fieldset>
             <fieldset class="step">
+              <legend>About you (Meet the artist)</legend>
+              <div class="owner-edit">
+                <img class="owner-preview" alt="Your photo" data-owner-preview />
+                <div class="admin-form">
+                  <label class="field"><span>Your name <small>(optional — shown as “Meet …”)</small></span><input name="owner_name" maxlength="80" /></label>
+                  <label class="field"><span>Change your photo</span><input name="owner_photo" type="file" accept="image/*" /></label>
+                </div>
+              </div>
+              <label class="field"><span>Your bio</span><textarea name="owner_bio" rows="5" maxlength="1200"></textarea></label>
+            </fieldset>
+            <fieldset class="step">
               <legend>Bookings &amp; deposits</legend>
               <div class="field-row">
                 <label class="field"><span>Deposit type</span>
