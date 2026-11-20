@@ -11,7 +11,7 @@
       phone: "0716279835",
       whatsapp: "27716279835",
       email: "",
-      address: "",
+      address: "34 Thabakgolo, next to Kgoši Mashego, 1282",
       facebook: "https://www.facebook.com/share/1HYaTmmz4T/",
       instagram: "",
       tiktok: "",
@@ -21,10 +21,10 @@
       slot_interval_minutes: 30,
       booking_notice_hours: 2,
       eft_details: "",
-      owner_name: "",
+      owner_name: "Khongelani Nyalungu",
       owner_photo_url: "images/owner.jpg",
       owner_bio:
-        "Hi, I'm the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.",
+        "Hi, I'm Khongelani, the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.",
       policies:
         "A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours' notice if you need to reschedule.",
     },

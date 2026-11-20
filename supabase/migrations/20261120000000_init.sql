@@ -255,7 +255,7 @@ create policy "Admins delete media" on storage.objects
 
 -- ---------- Starting content (from the KX Nyalungu price list) ----------
 
-insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio)
+insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio, owner_name, address)
 values (
   1,
   'Treat your nails, treat yourself 🌷',
@@ -264,7 +264,9 @@ values (
   '27716279835',
   'https://www.facebook.com/share/1HYaTmmz4T/',
   'A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours'' notice if you need to reschedule.',
-  'Hi, I''m the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.'
+  'Hi, I''m Khongelani, the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.',
+  'Khongelani Nyalungu',
+  '34 Thabakgolo, next to Kgoši Mashego, 1282'
 )
 on conflict (id) do nothing;
 
