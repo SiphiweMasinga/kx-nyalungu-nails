@@ -18,7 +18,7 @@
       deposit_type: "fixed",
       deposit_value: 50,
       house_call_fee_cents: 10000,
-      slot_interval_minutes: 30,
+      slot_interval_minutes: 120,
       booking_notice_hours: 2,
       eft_details: "",
       owner_name: "Khongelani Nyalungu",

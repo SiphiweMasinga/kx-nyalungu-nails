@@ -133,29 +133,33 @@ async function bookingsOn(date: string) {
   return data ?? [];
 }
 
-// Returns the start times ("HH:MM") free for an appointment of the given length on a date.
-async function availableSlots(date: string, durationMinutes: number, settings: Settings): Promise<string[]> {
+type Slot = { time: string; end: string; available: boolean };
+
+// The day's fixed appointment slots. Every appointment takes one slot of `slot_interval_minutes`
+// (2 hours by default), whatever the service. Slots start every slot length from opening time;
+// the last one may start any time before closing. Booked slots stay listed as unavailable so
+// clients can see they're taken.
+async function daySlots(date: string, settings: Settings): Promise<Slot[]> {
   if (date < todayInSA()) return [];
   const rules = await rulesForDate(date);
   if (!rules) return [];
 
   await expireStalePayments();
   const bookings = await bookingsOn(date);
-  // Daily limit (e.g. only 2 bookings on weekdays): the day is full once it's reached.
-  if (rules.max_bookings != null && bookings.length >= rules.max_bookings) return [];
+  // Daily limit (e.g. only 2 bookings on weekdays): once reached, nothing else can be booked.
+  const dayFull = rules.max_bookings != null && bookings.length >= rules.max_bookings;
 
   const busy = bookings.map((b) => [new Date(b.starts_at).getTime(), new Date(b.ends_at).getTime()]);
   const earliest = Date.now() + settings.booking_notice_hours * 3600_000;
-  const open = minutes(rules.open_time);
-  const close = minutes(rules.close_time);
-  const slots: string[] = [];
+  const length = settings.slot_interval_minutes;
+  const slots: Slot[] = [];
 
-  for (let t = open; t + durationMinutes <= close; t += settings.slot_interval_minutes) {
+  for (let t = minutes(rules.open_time); t < minutes(rules.close_time); t += length) {
     const start = new Date(`${date}T${hhmm(t)}:00${TZ_OFFSET}`).getTime();
-    const end = start + durationMinutes * 60_000;
-    if (start < earliest) continue;
-    if (busy.some(([bs, be]) => start < be && end > bs)) continue;
-    slots.push(hhmm(t));
+    if (start < earliest) continue; // already started or too soon to book
+    const end = start + length * 60_000;
+    const taken = busy.some(([bs, be]) => start < be && end > bs);
+    slots.push({ time: hhmm(t), end: hhmm(t + length), available: !taken && !dayFull });
   }
   return slots;
 }
@@ -229,12 +233,12 @@ async function handleAvailability(body: Record<string, unknown>) {
   if (!isValidDate(body.date)) throw new HttpError(400, "Choose a valid date.");
   const settings = await loadSettings();
   const selection = await priceSelection(body.service_id, body.addon_ids, body.house_call === true, settings);
-  const slots = await availableSlots(body.date, selection.durationMinutes, settings);
+  const slots = await daySlots(body.date, settings);
   return json(200, {
     slots,
     total_cents: selection.totalCents,
     deposit_cents: depositFor(selection.totalCents, settings),
-    duration_minutes: selection.durationMinutes,
+    duration_minutes: settings.slot_interval_minutes,
   });
 }
 
@@ -258,14 +262,16 @@ async function handleCreateBooking(request: Request, body: Record<string, unknow
 
   const settings = await loadSettings();
   const selection = await priceSelection(body.service_id, body.addon_ids, houseCall, settings);
-  const slots = await availableSlots(body.date, selection.durationMinutes, settings);
-  if (!slots.includes(body.time)) throw new HttpError(409, "Sorry, that time is no longer available. Please pick another.");
+  const slots = await daySlots(body.date, settings);
+  if (!slots.some((slot) => slot.time === body.time && slot.available)) {
+    throw new HttpError(409, "Sorry, that time is no longer available. Please pick another.");
+  }
 
   const deposit = depositFor(selection.totalCents, settings);
   const onlinePayment = deposit > 0 && payfastConfigured();
   const status = deposit === 0 ? "confirmed" : onlinePayment ? "pending_payment" : "requested";
   const startsAt = new Date(`${body.date}T${body.time}:00${TZ_OFFSET}`);
-  const endsAt = new Date(startsAt.getTime() + selection.durationMinutes * 60_000);
+  const endsAt = new Date(startsAt.getTime() + settings.slot_interval_minutes * 60_000);
   const token = randomToken();
 
   const { data: booking, error } = await db

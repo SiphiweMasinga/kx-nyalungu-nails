@@ -483,16 +483,19 @@
     }
   }
 
-  // Demo mode: compute open times locally from the sample hours.
-  function demoSlots(date, duration) {
+  // Demo mode: build the day's fixed slots locally from the hours (nothing is booked in demo mode).
+  function demoSlots(date) {
     const hours = rulesFor(date);
     if (!hours) return [];
     const toMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
-    const slots = [];
+    const label = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+    const length = content.settings.slot_interval_minutes;
     const earliest = Date.now() + content.settings.booking_notice_hours * 3600_000;
-    for (let t = toMin(hours.open_time); t + duration <= toMin(hours.close_time); t += content.settings.slot_interval_minutes) {
-      const label = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
-      if (new Date(`${date}T${label}:00`).getTime() >= earliest) slots.push(label);
+    const slots = [];
+    for (let t = toMin(hours.open_time); t < toMin(hours.close_time); t += length) {
+      if (new Date(`${date}T${label(t)}:00`).getTime() >= earliest) {
+        slots.push({ time: label(t), end: label(t + length), available: true });
+      }
     }
     return slots;
   }
@@ -515,30 +518,39 @@
             house_call: selection.houseCall,
             date: state.date,
           })).slots
-        : demoSlots(state.date, selection.duration);
+        : demoSlots(state.date);
       if (requestId !== state.requestId) return;
       grid.replaceChildren();
       if (!slots.length) {
-        grid.innerHTML = "<p>This day is fully booked — please try another date.</p>";
+        grid.innerHTML = "<p>No more slots on this day — please try another date.</p>";
         return;
       }
-      const rules = rulesFor(state.date);
-      if (rules?.max_bookings) {
-        const note = document.createElement("p");
-        note.textContent = `Only ${rules.max_bookings} bookings are available on this day — grab yours!`;
-        grid.append(note);
-      }
-      slots.forEach((time) => {
+      const open = slots.filter((slot) => slot.available).length;
+      const note = document.createElement("p");
+      note.textContent = open
+        ? `${open} of ${slots.length} slot${slots.length > 1 ? "s" : ""} still open — each appointment is up to 2 hours.`
+        : "This day is fully booked — please try another date.";
+      grid.append(note);
+      slots.forEach((slot) => {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "time-chip";
-        button.textContent = time;
-        button.setAttribute("aria-pressed", String(time === state.time));
-        button.addEventListener("click", () => {
-          state.time = time;
-          $$(".time-chip", grid).forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
-          updateSummary();
-        });
+        button.innerHTML = "<strong></strong><small></small>";
+        $("strong", button).textContent = `${slot.time} – ${slot.end}`;
+        $("small", button).textContent = slot.available ? "Available" : "Taken";
+        if (!slot.available) {
+          button.disabled = true;
+          button.classList.add("is-taken");
+          button.setAttribute("aria-label", `${slot.time} to ${slot.end}, taken`);
+        } else {
+          button.setAttribute("aria-pressed", String(slot.time === state.time));
+          button.addEventListener("click", () => {
+            state.time = slot.time;
+            state.end = slot.end;
+            $$(".time-chip:not(.is-taken)", grid).forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+            updateSummary();
+          });
+        }
         grid.append(button);
       });
     } catch (error) {
@@ -556,7 +568,7 @@
     $("[data-sum-service]").textContent = selection ? selection.summary : "—";
     $("[data-sum-when]").textContent =
       state.date && state.time
-        ? `${new Date(`${state.date}T12:00:00`).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} · ${state.time}`
+        ? `${new Date(`${state.date}T12:00:00`).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" })} · ${state.time}${state.end ? ` – ${state.end}` : ""}`
         : "—";
     $("[data-sum-total]").textContent = selection ? rand(state.totalCents) : "—";
     $("[data-sum-deposit]").textContent = selection ? rand(state.depositCents) : "—";

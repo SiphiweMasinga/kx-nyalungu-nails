@@ -43,7 +43,7 @@ create table public.settings (
   deposit_type text not null default 'percent' check (deposit_type in ('percent', 'fixed', 'none')),
   deposit_value integer not null default 50 check (deposit_value >= 0),
   house_call_fee_cents integer not null default 10000 check (house_call_fee_cents >= 0),
-  slot_interval_minutes integer not null default 30 check (slot_interval_minutes between 10 and 120),
+  slot_interval_minutes integer not null default 120 check (slot_interval_minutes between 10 and 240), -- appointment slot length
   booking_notice_hours integer not null default 2 check (booking_notice_hours between 0 and 168),
   eft_details text not null default '',
   policies text not null default '',
@@ -273,7 +273,7 @@ create policy "Admins delete media" on storage.objects
 
 -- ---------- Starting content (from the KX Nyalungu price list) ----------
 
-insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio, owner_name, address, deposit_type, deposit_value)
+insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio, owner_name, address, deposit_type, deposit_value, slot_interval_minutes)
 values (
   1,
   'Treat your nails, treat yourself 🌷',
@@ -286,7 +286,8 @@ values (
   'Khongelani Nyalungu',
   '34 Thabakgolo, next to Kgoši Mashego, 1282',
   'fixed',
-  50
+  50,
+  120
 )
 on conflict (id) do nothing;
 
