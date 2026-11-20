@@ -51,15 +51,23 @@
       { id: "g3", image_url: "images/work-3.jpg", caption: "Animal print & 3D flower stiletto" },
       { id: "g4", image_url: "images/work-4.jpg", caption: "Pink French, square" },
     ],
-    // 0 = Sunday … 6 = Saturday. Sample hours — the owner sets real ones in the dashboard.
+    // 0 = Sunday … 6 = Saturday. Weekdays 14:00–17:00 with only 2 bookings; weekends 09:00–17:00.
     hours: [
-      { weekday: 0, closed: true, open_time: null, close_time: null },
-      { weekday: 1, closed: false, open_time: "09:00", close_time: "17:00" },
-      { weekday: 2, closed: false, open_time: "09:00", close_time: "17:00" },
-      { weekday: 3, closed: false, open_time: "09:00", close_time: "17:00" },
-      { weekday: 4, closed: false, open_time: "09:00", close_time: "17:00" },
-      { weekday: 5, closed: false, open_time: "09:00", close_time: "18:00" },
-      { weekday: 6, closed: false, open_time: "08:00", close_time: "16:00" },
+      { weekday: 0, closed: false, open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { weekday: 1, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
+      { weekday: 2, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
+      { weekday: 3, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
+      { weekday: 4, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
+      { weekday: 5, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
+      { weekday: 6, closed: false, open_time: "09:00", close_time: "17:00", max_bookings: null },
+    ],
+    // Public school holidays (gov.za/about-sa/school-calendar): 09:00–17:00 every day.
+    holidays: [
+      { name: "December school holidays", starts_on: "2026-12-10", ends_on: "2027-01-12", open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { name: "March/April school holidays", starts_on: "2027-03-20", ends_on: "2027-04-05", open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { name: "June/July school holidays", starts_on: "2027-06-26", ends_on: "2027-07-19", open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { name: "October school holidays", starts_on: "2027-10-02", ends_on: "2027-10-10", open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { name: "December school holidays", starts_on: "2027-12-09", ends_on: "2027-12-31", open_time: "09:00", close_time: "17:00", max_bookings: null },
     ],
     blocked_dates: [],
   };

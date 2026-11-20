@@ -512,15 +512,50 @@
       div.className = "hours-row";
       div.dataset.weekday = weekday;
       div.innerHTML = `<strong></strong><label class="toggle"><input type="checkbox" data-closed /><span>Closed</span></label>
-        <input type="time" data-open /><input type="time" data-close />`;
+        <input type="time" data-open aria-label="Opens" /><input type="time" data-close aria-label="Closes" />
+        <input type="number" min="1" max="20" data-max placeholder="No limit" aria-label="Max bookings that day" />`;
       $("strong", div).textContent = DAY_NAMES[weekday];
       $("[data-closed]", div).checked = h.closed;
       $("[data-open]", div).value = h.open_time?.slice(0, 5) ?? "09:00";
       $("[data-close]", div).value = h.close_time?.slice(0, 5) ?? "17:00";
+      $("[data-max]", div).value = h.max_bookings ?? "";
       container.append(div);
     });
+    loadHolidays();
     loadBlocked();
   }
+
+  async function loadHolidays() {
+    const today = new Date().toISOString().slice(0, 10);
+    const periods = await run(sb.from("holiday_periods").select("*").gte("ends_on", today).order("starts_on"));
+    const list = $("[data-holidays]");
+    list.replaceChildren();
+    if (!periods.length) list.append(empty("No school holidays added — add the next ones above."));
+    periods.forEach((p) => {
+      list.append(row({
+        title: p.name,
+        meta: `${p.starts_on} → ${p.ends_on} · ${p.open_time.slice(0, 5)}–${p.close_time.slice(0, 5)} every day${p.max_bookings ? ` · max ${p.max_bookings} bookings a day` : ""}`,
+        actions: [["Remove", () => confirm(`Remove ${p.name}?`) && run(sb.from("holiday_periods").delete().eq("id", p.id), "Removed").then(loadHolidays)]],
+      }));
+    });
+  }
+
+  $("[data-holiday-form]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const f = event.currentTarget.elements;
+    if (f.ends_on.value < f.starts_on.value) return toast("The end date must be after the start date.", true);
+    if (f.close_time.value <= f.open_time.value) return toast("Closing time must be after opening time.", true);
+    await run(sb.from("holiday_periods").insert({
+      name: f.name.value.trim() || "School holidays",
+      starts_on: f.starts_on.value,
+      ends_on: f.ends_on.value,
+      open_time: f.open_time.value,
+      close_time: f.close_time.value,
+      max_bookings: f.max_bookings.value ? Number(f.max_bookings.value) : null,
+    }), "Holiday hours added");
+    event.currentTarget.reset();
+    loadHolidays();
+  });
 
   $("[data-hours-form]").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -531,6 +566,7 @@
         closed,
         open_time: closed ? null : $("[data-open]", div).value,
         close_time: closed ? null : $("[data-close]", div).value,
+        max_bookings: $("[data-max]", div).value ? Number($("[data-max]", div).value) : null,
       };
     });
     const bad = rows.find((r) => !r.closed && (!r.open_time || !r.close_time || r.close_time <= r.open_time));

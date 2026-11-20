@@ -141,11 +141,29 @@ create table public.business_hours (
   closed boolean not null default false,
   open_time time,
   close_time time,
+  max_bookings integer check (max_bookings is null or max_bookings > 0), -- null = no daily limit
   check (closed or (open_time is not null and close_time is not null and close_time > open_time))
 );
 alter table public.business_hours enable row level security;
 create policy "Anyone can read hours" on public.business_hours for select using (true);
 create policy "Admins manage hours" on public.business_hours
+  for all using (public.is_admin()) with check (public.is_admin());
+
+-- School holidays (or any period) with their own hours, replacing the normal weekly hours.
+create table public.holiday_periods (
+  id uuid primary key default gen_random_uuid(),
+  name text not null default 'School holidays',
+  starts_on date not null,
+  ends_on date not null,
+  open_time time not null default '09:00',
+  close_time time not null default '17:00',
+  max_bookings integer check (max_bookings is null or max_bookings > 0),
+  check (ends_on >= starts_on),
+  check (close_time > open_time)
+);
+alter table public.holiday_periods enable row level security;
+create policy "Anyone can read holiday hours" on public.holiday_periods for select using (true);
+create policy "Admins manage holiday hours" on public.holiday_periods
   for all using (public.is_admin()) with check (public.is_admin());
 
 create table public.blocked_dates (
@@ -285,11 +303,20 @@ insert into public.addons (name, price_cents, duration_minutes, sort) values
   ('3D flower', 1000, 10, 2),
   ('Ombré', 3000, 15, 3);
 
-insert into public.business_hours (weekday, closed, open_time, close_time) values
-  (0, true, null, null),
-  (1, false, '09:00', '17:00'),
-  (2, false, '09:00', '17:00'),
-  (3, false, '09:00', '17:00'),
-  (4, false, '09:00', '17:00'),
-  (5, false, '09:00', '18:00'),
-  (6, false, '08:00', '16:00');
+-- Weekdays 14:00–17:00 with at most 2 bookings; weekends 09:00–17:00.
+insert into public.business_hours (weekday, closed, open_time, close_time, max_bookings) values
+  (0, false, '09:00', '17:00', null),
+  (1, false, '14:00', '17:00', 2),
+  (2, false, '14:00', '17:00', 2),
+  (3, false, '14:00', '17:00', 2),
+  (4, false, '14:00', '17:00', 2),
+  (5, false, '14:00', '17:00', 2),
+  (6, false, '09:00', '17:00', null);
+
+-- Public school holidays (national calendar, gov.za/about-sa/school-calendar): 09:00–17:00 daily.
+insert into public.holiday_periods (name, starts_on, ends_on) values
+  ('December school holidays', '2026-12-10', '2027-01-12'),
+  ('March/April school holidays', '2027-03-20', '2027-04-05'),
+  ('June/July school holidays', '2027-06-26', '2027-07-19'),
+  ('October school holidays', '2027-10-02', '2027-10-10'),
+  ('December school holidays', '2027-12-09', '2027-12-31');

@@ -21,7 +21,7 @@
     const today = new Date().toISOString().slice(0, 10);
     const settingsColumns =
       "business_name, tagline, about, phone, whatsapp, email, address, facebook, instagram, tiktok, deposit_type, deposit_value, house_call_fee_cents, slot_interval_minutes, booking_notice_hours, eft_details, policies, owner_name, owner_bio, owner_photo_url";
-    const [settings, services, addons, specials, gallery, hours, blocked] = await Promise.all([
+    const [settings, services, addons, specials, gallery, hours, blocked, holidays] = await Promise.all([
       sb.from("settings").select(settingsColumns).eq("id", 1).single(),
       sb.from("services").select("*").eq("active", true).order("sort"),
       sb.from("addons").select("*").eq("active", true).order("sort"),
@@ -29,8 +29,9 @@
       sb.from("gallery").select("*").order("sort").order("created_at", { ascending: false }),
       sb.from("business_hours").select("*").order("weekday"),
       sb.from("blocked_dates").select("day").gte("day", today),
+      sb.from("holiday_periods").select("*").gte("ends_on", today).order("starts_on"),
     ]);
-    const failed = [settings, services, addons, specials, gallery, hours, blocked].find((r) => r.error);
+    const failed = [settings, services, addons, specials, gallery, hours, blocked, holidays].find((r) => r.error);
     if (failed) throw failed.error;
     return {
       settings: settings.data,
@@ -40,8 +41,20 @@
       gallery: gallery.data,
       hours: hours.data,
       blocked_dates: blocked.data.map((b) => b.day),
+      holidays: holidays.data,
     };
   }
+
+  // Working hours for a date ("YYYY-MM-DD"): school holidays override the weekly hours.
+  function rulesFor(iso) {
+    if (content.blocked_dates.includes(iso)) return null;
+    const holiday = (content.holidays ?? []).find((p) => p.starts_on <= iso && p.ends_on >= iso);
+    if (holiday) return { ...holiday, holiday: true };
+    const hours = content.hours.find((h) => h.weekday === new Date(`${iso}T12:00:00`).getDay());
+    return hours && !hours.closed ? hours : null;
+  }
+
+  const shortDate = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString("en-ZA", { day: "numeric", month: "short" });
 
   async function api(action, body) {
     const response = await fetch(`${cfg.supabaseUrl.replace(/\/$/, "")}/functions/v1/kx-api`, {
@@ -325,8 +338,27 @@
       tr.innerHTML = "<td></td><td></td>";
       tr.cells[0].textContent = DAY_NAMES[weekday];
       tr.cells[1].textContent = !h || h.closed ? "Closed" : `${h.open_time.slice(0, 5)} – ${h.close_time.slice(0, 5)}`;
+      if (h?.max_bookings && !h.closed) {
+        const spots = document.createElement("small");
+        spots.className = "spots";
+        spots.textContent = `${h.max_bookings} spots`;
+        tr.cells[1].append(spots);
+      }
       table.append(tr);
     });
+
+    // School holiday hours: show the current or next holiday period.
+    const note = $("[data-holiday-note]");
+    const nextHoliday = (content.holidays ?? []).find((p) => p.ends_on >= toIso(new Date()));
+    if (nextHoliday) {
+      const isNow = nextHoliday.starts_on <= toIso(new Date());
+      note.innerHTML = "<strong></strong><span></span>";
+      $("strong", note).textContent = isNow ? "School holidays — now on" : "School holidays";
+      $("span", note).textContent = ` ${shortDate(nextHoliday.starts_on)} – ${shortDate(nextHoliday.ends_on)}: open every day ${nextHoliday.open_time.slice(0, 5)} – ${nextHoliday.close_time.slice(0, 5)}`;
+      note.hidden = false;
+    } else {
+      note.hidden = true;
+    }
     if (!s.policies) $(".policies").hidden = true;
   }
 
@@ -416,9 +448,7 @@
   }
 
   function isOpenDay(date) {
-    const iso = toIso(date);
-    const hours = content.hours.find((h) => h.weekday === date.getDay());
-    return hours && !hours.closed && !content.blocked_dates.includes(iso);
+    return Boolean(rulesFor(toIso(date)));
   }
 
   function toIso(date) {
@@ -455,9 +485,8 @@
 
   // Demo mode: compute open times locally from the sample hours.
   function demoSlots(date, duration) {
-    const day = new Date(`${date}T12:00:00`);
-    const hours = content.hours.find((h) => h.weekday === day.getDay());
-    if (!hours || hours.closed) return [];
+    const hours = rulesFor(date);
+    if (!hours) return [];
     const toMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
     const slots = [];
     const earliest = Date.now() + content.settings.booking_notice_hours * 3600_000;
@@ -490,8 +519,14 @@
       if (requestId !== state.requestId) return;
       grid.replaceChildren();
       if (!slots.length) {
-        grid.innerHTML = "<p>No open times on this day — please try another date.</p>";
+        grid.innerHTML = "<p>This day is fully booked — please try another date.</p>";
         return;
+      }
+      const rules = rulesFor(state.date);
+      if (rules?.max_bookings) {
+        const note = document.createElement("p");
+        note.textContent = `Only ${rules.max_bookings} bookings are available on this day — grab yours!`;
+        grid.append(note);
       }
       slots.forEach((time) => {
         const button = document.createElement("button");
@@ -657,7 +692,9 @@
     if (/deposit|pay|eft/.test(q)) return `A ${s.deposit_value}% deposit secures your booking; the balance is paid at your appointment.`;
     if (/special|promo|deal/.test(q)) return content.specials.length ? content.specials.map((x) => `${x.title}: ${x.description}`).join("\n") : "No specials right now — keep an eye on this page! 🌷";
     if (/chrome|flower|ombr|extra|add/.test(q)) return content.addons.map((a) => `${a.name}: +${rand(a.price_cents)}`).join("\n");
-    if (/hour|open|time|when/.test(q)) return "Check our opening hours in the Visit section, or tap \"Book now\" to see open times.";
+    if (/hour|open|time|when|weekend|holiday/.test(q)) {
+      return "Weekdays 14:00–17:00 (only 2 bookings a day, so book early!), weekends 09:00–17:00, and during school holidays 09:00–17:00 every day. Tap \"Book now\" to see open times 💅";
+    }
     if (/price|cost|how much/.test(q)) return content.services.map((x) => `${x.name}: ${rand(x.price_cents)}`).join("\n");
     return `I can help with prices, add-ons, deposits and house calls. For anything else, WhatsApp us on ${s.phone || "the number below"}!`;
   }
