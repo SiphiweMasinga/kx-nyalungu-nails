@@ -5,3 +5,10 @@ verify_jwt = false
 
 [functions.payfast-itn]
 verify_jwt = false
+
+# Login emails (invite, password reset) send the owner to her dashboard.
+# Public sign-ups are off: the only account is the owner, invited from Supabase.
+[auth]
+site_url = "https://siphiwemasinga.github.io/kx-nyalungu-nails/admin/"
+additional_redirect_urls = ["https://siphiwemasinga.github.io/kx-nyalungu-nails/admin/"]
+enable_signup = false

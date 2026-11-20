@@ -47,6 +47,19 @@
           <label class="field"><span>Email</span><input name="email" type="email" autocomplete="username" required /></label>
           <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>
           <button class="button button-pink button-lg" type="submit">Log in</button>
+          <button class="button button-ghost" type="button" data-forgot>Forgot password?</button>
+          <p class="form-status" role="status"></p>
+        </form>
+      </section>
+
+      <!-- Opened from the invite or password-reset email -->
+      <section class="panel login-panel" data-view="set-password" hidden>
+        <h1>Create your password 🔐</h1>
+        <p class="small-print">Choose a password for your KX Nyalungu Nails dashboard. Use at least 10 characters.</p>
+        <form class="admin-form" data-password-form>
+          <label class="field"><span>New password</span><input name="password" type="password" autocomplete="new-password" minlength="10" required /></label>
+          <label class="field"><span>Type it again</span><input name="confirm" type="password" autocomplete="new-password" minlength="10" required /></label>
+          <button class="button button-pink button-lg" type="submit">Save password &amp; open dashboard</button>
           <p class="form-status" role="status"></p>
         </form>
       </section>

@@ -18,6 +18,12 @@
     return;
   }
 
+  // Invite and password-reset emails land here with "type=invite" / "type=recovery" in the URL
+  // fragment. Read it before the Supabase client consumes and clears the fragment.
+  const linkParams = new URLSearchParams(location.hash.slice(1));
+  const authLinkType = linkParams.get("type");
+  const authLinkError = linkParams.get("error_description");
+
   const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
   let services = [];
 
@@ -76,6 +82,41 @@
       return;
     }
     status.textContent = "";
+    enterDashboard(data.user);
+  });
+
+  $("[data-forgot]").addEventListener("click", async () => {
+    const form = $("[data-login-form]");
+    const status = $(".form-status", form);
+    const email = form.elements.email.value.trim();
+    if (!email) {
+      status.textContent = "Type your email above first, then tap “Forgot password?”.";
+      status.dataset.state = "error";
+      return;
+    }
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+    status.textContent = error ? error.message : "Check your email for a link to set a new password.";
+    status.dataset.state = error ? "error" : "";
+  });
+
+  $("[data-password-form]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const status = $(".form-status", form);
+    if (form.elements.password.value !== form.elements.confirm.value) {
+      status.textContent = "The two passwords don't match.";
+      status.dataset.state = "error";
+      return;
+    }
+    status.textContent = "Saving…";
+    status.dataset.state = "";
+    const { data, error } = await sb.auth.updateUser({ password: form.elements.password.value });
+    if (error) {
+      status.textContent = error.message;
+      status.dataset.state = "error";
+      return;
+    }
+    history.replaceState(null, "", location.pathname);
     enterDashboard(data.user);
   });
 
@@ -691,7 +732,17 @@
   // ---------- Start ----------
 
   sb.auth.getSession().then(({ data }) => {
-    if (data.session) enterDashboard(data.session.user);
-    else showView("login");
+    if (data.session && (authLinkType === "invite" || authLinkType === "recovery")) {
+      showView("set-password");
+    } else if (data.session) {
+      enterDashboard(data.session.user);
+    } else {
+      showView("login");
+      if (authLinkError) {
+        const status = $("[data-login-form] .form-status");
+        status.textContent = `That link didn't work (${authLinkError}). Type your email and tap “Forgot password?” for a new one.`;
+        status.dataset.state = "error";
+      }
+    }
   });
 })();
