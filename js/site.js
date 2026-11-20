@@ -511,7 +511,7 @@
     grid.innerHTML = "<p>Checking open times…</p>";
     const requestId = ++state.requestId;
     try {
-      const slots = live
+      let slots = live
         ? (await api("availability", {
             service_id: selection.service.id,
             addon_ids: selectedAddonIds(),
@@ -520,6 +520,7 @@
           })).slots
         : demoSlots(state.date);
       if (requestId !== state.requestId) return;
+      slots = slots.map((slot) => (typeof slot === "string" ? { time: slot, end: "", available: true } : slot));
       grid.replaceChildren();
       if (!slots.length) {
         grid.innerHTML = "<p>No more slots on this day — please try another date.</p>";
@@ -536,7 +537,7 @@
         button.type = "button";
         button.className = "time-chip";
         button.innerHTML = "<strong></strong><small></small>";
-        $("strong", button).textContent = `${slot.time} – ${slot.end}`;
+        $("strong", button).textContent = slot.end ? `${slot.time} – ${slot.end}` : slot.time;
         $("small", button).textContent = slot.available ? "Available" : "Taken";
         if (!slot.available) {
           button.disabled = true;
