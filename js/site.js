@@ -689,11 +689,14 @@
       return content.services.filter((x) => /gel/i.test(x.name)).map((x) => `${x.name}: ${rand(x.price_cents)}`).join("\n");
     }
     if (/house|home|come to/.test(q)) return `Yes! House calls are an extra ${rand(s.house_call_fee_cents)}. Tick "House call" when you book.`;
-    if (/deposit|pay|eft/.test(q)) return `A ${s.deposit_value}% deposit secures your booking; the balance is paid at your appointment.`;
+    if (/deposit|pay|eft/.test(q)) {
+      const amount = s.deposit_type === "fixed" ? `An R${s.deposit_value}` : `A ${s.deposit_value}%`;
+      return `${amount} deposit secures your booking; the balance is paid at your appointment.`;
+    }
     if (/special|promo|deal/.test(q)) return content.specials.length ? content.specials.map((x) => `${x.title}: ${x.description}`).join("\n") : "No specials right now — keep an eye on this page! 🌷";
     if (/chrome|flower|ombr|extra|add/.test(q)) return content.addons.map((a) => `${a.name}: +${rand(a.price_cents)}`).join("\n");
     if (/hour|open|time|when|weekend|holiday/.test(q)) {
-      return "Weekdays 14:00–17:00 (only 2 bookings a day, so book early!), weekends 09:00–17:00, and during school holidays 09:00–17:00 every day. Tap \"Book now\" to see open times 💅";
+      return "Weekdays 14:00–17:00 (only 2 bookings a day), weekends 09:00–17:00 (4 bookings a day), and during school holidays 09:00–17:00 every day. Spots go fast — tap \"Book now\" to see open times 💅";
     }
     if (/price|cost|how much/.test(q)) return content.services.map((x) => `${x.name}: ${rand(x.price_cents)}`).join("\n");
     return `I can help with prices, add-ons, deposits and house calls. For anything else, WhatsApp us on ${s.phone || "the number below"}!`;
@@ -767,6 +770,51 @@
     });
   }
 
+  // ---------- Scroll animations ----------
+
+  // Fades sections and cards up as they scroll into view, a little staggered within each row.
+  // The classes are removed afterwards so hover effects keep their own quick timing.
+  function setupReveal() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    const targets = $$(
+      ".section-kicker, .section h2, .special-card, .menu-group, .addons-box, .gallery-grid figure, .about-photo, .about-copy, .step, .booking-summary, .contact-list li, .policies, .hours-card",
+    ).filter((el) => !el.closest(".hero"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
+          el.classList.add("is-visible");
+          observer.unobserve(el);
+          setTimeout(() => {
+            el.classList.remove("reveal", "is-visible");
+            el.style.transitionDelay = "";
+          }, 1200);
+        });
+      },
+      { threshold: 0.12 },
+    );
+    targets.forEach((el) => {
+      const siblings = [...el.parentElement.children].filter((c) => c.matches(el.tagName));
+      el.style.transitionDelay = `${Math.min(siblings.indexOf(el), 5) * 90}ms`;
+      el.classList.add("reveal");
+      observer.observe(el);
+    });
+  }
+
+  // The hero shows the two newest gallery photos, so new uploads appear at the top automatically.
+  function renderHeroPhotos() {
+    const photos = content.gallery.filter((p) => p.image_url);
+    [".hero-card-front img", ".hero-card-back img"].forEach((selector, index) => {
+      const img = $(selector);
+      if (!img || !photos[index]) return;
+      img.style.display = "";
+      img.parentElement.classList.remove("img-fallback");
+      img.src = photos[index].image_url;
+      img.alt = photos[index].caption || "";
+    });
+  }
+
   // ---------- Start ----------
 
   async function start() {
@@ -782,12 +830,14 @@
     renderSpecials();
     renderMenu();
     renderGallery();
+    renderHeroPhotos();
     renderAbout();
     renderVisit();
     setupBookingForm();
     updateSummary();
     loadTimes();
     setupChat();
+    setupReveal();
   }
 
   start();

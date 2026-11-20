@@ -79,7 +79,7 @@ Go to `/admin` on the live site and log in. Tabs:
 - **Prices** — edit services, prices, durations and add-ons; hide items without deleting them
 - **Gallery** — upload photos straight from her phone and add captions
 - **Hours** — opening hours per day and days off
-- **Settings** — contact details, deposit rule (currently 50%), house call fee, booking policy
+- **Settings** — contact details, deposit rule (currently a fixed R50), house call fee, booking policy
 
 ## AI assistant
 

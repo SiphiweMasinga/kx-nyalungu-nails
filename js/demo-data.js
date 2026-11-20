@@ -15,7 +15,7 @@
       facebook: "https://www.facebook.com/share/1HYaTmmz4T/",
       instagram: "",
       tiktok: "",
-      deposit_type: "percent",
+      deposit_type: "fixed",
       deposit_value: 50,
       house_call_fee_cents: 10000,
       slot_interval_minutes: 30,
@@ -26,7 +26,7 @@
       owner_bio:
         "Hi, I'm Khongelani, the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.",
       policies:
-        "A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours' notice if you need to reschedule.",
+        "An R50 deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours' notice if you need to reschedule.",
     },
     services: [
       { id: "s1", category: "Acrylic mani", name: "Acrylic mani — Short", description: "Sculpted acrylic set, short length.", duration_minutes: 90, price_cents: 13000 },
@@ -51,15 +51,15 @@
       { id: "g3", image_url: "images/work-3.jpg", caption: "Animal print & 3D flower stiletto" },
       { id: "g4", image_url: "images/work-4.jpg", caption: "Pink French, square" },
     ],
-    // 0 = Sunday … 6 = Saturday. Weekdays 14:00–17:00 with only 2 bookings; weekends 09:00–17:00.
+    // 0 = Sunday … 6 = Saturday. Weekdays 14:00–17:00 (2 bookings max); weekends 09:00–17:00 (4 bookings max).
     hours: [
-      { weekday: 0, closed: false, open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { weekday: 0, closed: false, open_time: "09:00", close_time: "17:00", max_bookings: 4 },
       { weekday: 1, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
       { weekday: 2, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
       { weekday: 3, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
       { weekday: 4, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
       { weekday: 5, closed: false, open_time: "14:00", close_time: "17:00", max_bookings: 2 },
-      { weekday: 6, closed: false, open_time: "09:00", close_time: "17:00", max_bookings: null },
+      { weekday: 6, closed: false, open_time: "09:00", close_time: "17:00", max_bookings: 4 },
     ],
     // Public school holidays (gov.za/about-sa/school-calendar): 09:00–17:00 every day.
     holidays: [

@@ -484,20 +484,39 @@
     });
   }
 
-  $("[data-gallery-upload]").addEventListener("change", async (event) => {
-    const files = [...event.target.files];
-    event.target.value = "";
-    for (const file of files) {
+  async function uploadGalleryFiles(files) {
+    let added = 0;
+    for (const [index, file] of files.entries()) {
       try {
-        toast(`Uploading ${file.name}…`);
+        toast(`Uploading photo ${index + 1} of ${files.length}…`);
         const url = await uploadImage(file, "gallery");
         await run(sb.from("gallery").insert({ image_url: url, caption: "" }));
+        added += 1;
       } catch (error) {
         toast(error.message, true);
       }
     }
-    toast("Photos added to your gallery");
-    loadGallery();
+    if (added) toast(`${added} photo${added > 1 ? "s" : ""} added — they're on your website now. Add captions below.`);
+    openTab("gallery");
+  }
+
+  $("[data-gallery-upload]").addEventListener("change", (event) => {
+    const files = [...event.target.files];
+    event.target.value = "";
+    if (files.length) uploadGalleryFiles(files);
+  });
+
+  // Quick actions at the top of the dashboard.
+  $("[data-quick-upload]").addEventListener("change", (event) => {
+    const files = [...event.target.files];
+    event.target.value = "";
+    if (files.length) uploadGalleryFiles(files);
+  });
+
+  $("[data-quick-special]").addEventListener("click", async () => {
+    openTab("specials");
+    await loadServices();
+    editSpecial();
   });
 
   // ---------- Hours & days off ----------

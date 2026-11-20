@@ -284,6 +284,46 @@
   gap: 10px;
 }
 
+.quick-actions {
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.quick-card {
+  padding: 22px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(255, 45, 135, 0.45);
+  border-radius: var(--radius);
+  background: linear-gradient(150deg, rgba(255, 45, 135, 0.22), var(--card) 65%);
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.quick-card:hover,
+.quick-card:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(255, 45, 135, 0.25);
+}
+
+.quick-card strong {
+  font: 800 20px var(--display);
+}
+
+.quick-card span:not(.quick-icon) {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.quick-icon {
+  font-size: 30px;
+}
+
 .owner-edit {
   display: grid;
   grid-template-columns: 120px 1fr;

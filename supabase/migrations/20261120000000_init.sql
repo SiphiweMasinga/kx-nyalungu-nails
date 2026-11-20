@@ -273,7 +273,7 @@ create policy "Admins delete media" on storage.objects
 
 -- ---------- Starting content (from the KX Nyalungu price list) ----------
 
-insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio, owner_name, address)
+insert into public.settings (id, tagline, about, phone, whatsapp, facebook, policies, owner_bio, owner_name, address, deposit_type, deposit_value)
 values (
   1,
   'Treat your nails, treat yourself 🌷',
@@ -281,10 +281,12 @@ values (
   '0716279835',
   '27716279835',
   'https://www.facebook.com/share/1HYaTmmz4T/',
-  'A 50% deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours'' notice if you need to reschedule.',
+  'An R50 deposit secures your booking and goes towards your total; the balance is paid at your appointment. Please arrive on time, and give at least 24 hours'' notice if you need to reschedule.',
   'Hi, I''m Khongelani, the artist behind KX Nyalungu Nails 💅 I believe your nails should feel like a treat every single time. From sharp stiletto French tips and glossy chrome to hand-placed 3D flowers, every set is done with patience, clean technique and real love for detail. Whether you come to me or book a house call, my goal is simple: you leave feeling confident and fully treated.',
   'Khongelani Nyalungu',
-  '34 Thabakgolo, next to Kgoši Mashego, 1282'
+  '34 Thabakgolo, next to Kgoši Mashego, 1282',
+  'fixed',
+  50
 )
 on conflict (id) do nothing;
 
@@ -303,15 +305,15 @@ insert into public.addons (name, price_cents, duration_minutes, sort) values
   ('3D flower', 1000, 10, 2),
   ('Ombré', 3000, 15, 3);
 
--- Weekdays 14:00–17:00 with at most 2 bookings; weekends 09:00–17:00.
+-- Weekdays 14:00–17:00 with at most 2 bookings; weekends 09:00–17:00 with at most 4.
 insert into public.business_hours (weekday, closed, open_time, close_time, max_bookings) values
-  (0, false, '09:00', '17:00', null),
+  (0, false, '09:00', '17:00', 4),
   (1, false, '14:00', '17:00', 2),
   (2, false, '14:00', '17:00', 2),
   (3, false, '14:00', '17:00', 2),
   (4, false, '14:00', '17:00', 2),
   (5, false, '14:00', '17:00', 2),
-  (6, false, '09:00', '17:00', null);
+  (6, false, '09:00', '17:00', 4);
 
 -- Public school holidays (national calendar, gov.za/about-sa/school-calendar): 09:00–17:00 daily.
 insert into public.holiday_periods (name, starts_on, ends_on) values
