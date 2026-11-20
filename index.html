@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KX Nyalungu Nails — Acrylic, Gel &amp; Nail Art</title>
+    <meta
+      name="description"
+      content="KX Nyalungu Nails: acrylic and gel manicures, pedicures, chrome, ombré and 3D flower nail art. Book online with a 50% deposit, or book a house call."
+    />
+    <meta name="theme-color" content="#0b0a0d" />
+    <meta property="og:title" content="KX Nyalungu Nails — Treat your nails, treat yourself" />
+    <meta property="og:description" content="Acrylic, gel and nail art. Book online in a minute." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+    <script src="js/demo-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" defer></script>
+    <script src="js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="demo-ribbon" hidden>Demo mode · sample hours · bookings aren't saved yet</div>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="KX Nyalungu Nails home">
+          <span class="brand-mark" aria-hidden="true">KX</span>
+          <span class="brand-name">Nyalungu <em>Nails</em></span>
+        </a>
+        <nav class="site-nav" id="site-nav" aria-label="Main">
+          <a href="#specials" data-nav-specials>Specials</a>
+          <a href="#services">Prices</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#visit">Visit</a>
+          <a class="button button-pink nav-book" href="#book">Book now</a>
+        </nav>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+          <span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- Hero -->
+      <section class="hero" id="top">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="dot" aria-hidden="true"></span> Nail studio · House calls available</p>
+            <h1>Treat your nails, <span class="chrome-text">treat yourself.</span></h1>
+            <p class="hero-intro" data-field="about"></p>
+            <div class="hero-actions">
+              <a class="button button-pink button-lg" href="#book">Book your set</a>
+              <a class="button button-ghost button-lg" data-whatsapp-link target="_blank" rel="noopener noreferrer">WhatsApp us</a>
+            </div>
+            <ul class="hero-facts">
+              <li><strong data-from-price>R50</strong><span>services from</span></li>
+              <li><strong data-deposit-label>50%</strong><span>deposit secures your spot</span></li>
+              <li><strong data-housecall-fee>+R100</strong><span>house calls</span></li>
+            </ul>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-card hero-card-back"><img src="images/work-2.jpg" alt="" data-fallback /></div>
+            <div class="hero-card hero-card-front"><img src="images/work-1.jpg" alt="" data-fallback /></div>
+            <span class="hero-sticker">✿ 3D flowers</span>
+            <span class="hero-sticker hero-sticker-2">Chrome +R10</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>Acrylic</span><span>Gel</span><span>Chrome</span><span>3D flowers</span><span>Ombré</span><span>French tips</span><span>Pedicures</span><span>House calls</span>
+          <span>Acrylic</span><span>Gel</span><span>Chrome</span><span>3D flowers</span><span>Ombré</span><span>French tips</span><span>Pedicures</span><span>House calls</span>
+        </div>
+      </div>
+
+      <!-- Specials -->
+      <section class="section" id="specials" hidden>
+        <div class="container">
+          <p class="section-kicker">This week</p>
+          <h2>Specials <span class="pink">🔥</span></h2>
+          <div class="specials-grid" data-specials></div>
+        </div>
+      </section>
+
+      <!-- Prices -->
+      <section class="section" id="services">
+        <div class="container">
+          <p class="section-kicker">Price list</p>
+          <h2>Pick your set.</h2>
+          <div class="menu-grid" data-menu></div>
+          <div class="addons-box">
+            <h3>Make it extra</h3>
+            <ul class="addon-chips" data-addons></ul>
+            <p class="small-print" data-housecall-note></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gallery -->
+      <section class="section section-dark" id="gallery">
+        <div class="container">
+          <p class="section-kicker">Recent work</p>
+          <h2>Fresh from the studio.</h2>
+          <div class="gallery-grid" data-gallery></div>
+          <p class="gallery-cta">More on Facebook: <strong data-field="facebook"></strong></p>
+        </div>
+      </section>
+
+      <!-- Booking -->
+      <section class="section" id="book">
+        <div class="container booking-layout">
+          <div class="booking-main">
+            <p class="section-kicker">Online booking</p>
+            <h2>Book in under a minute.</h2>
+
+            <form class="booking-form" data-booking-form novalidate>
+              <fieldset class="step">
+                <legend><span class="step-num">1</span> Choose your service</legend>
+                <label class="field">
+                  <span>Service</span>
+                  <select name="service_id" required data-service-select></select>
+                </label>
+                <div class="field">
+                  <span>Add-ons <small>(optional)</small></span>
+                  <div class="check-chips" data-addon-checks></div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" name="house_call" data-housecall-check />
+                  <span>House call <small data-housecall-fee-label></small> — I'd like you to come to me</span>
+                </label>
+                <label class="field" data-address-field hidden>
+                  <span>Address for the house call</span>
+                  <input name="address" type="text" maxlength="300" autocomplete="street-address" />
+                </label>
+              </fieldset>
+
+              <fieldset class="step">
+                <legend><span class="step-num">2</span> Pick a date &amp; time</legend>
+                <div class="date-strip" data-dates role="listbox" aria-label="Choose a date"></div>
+                <div class="time-grid" data-times aria-live="polite"></div>
+              </fieldset>
+
+              <fieldset class="step">
+                <legend><span class="step-num">3</span> Your details</legend>
+                <div class="field-row">
+                  <label class="field">
+                    <span>Name</span>
+                    <input name="name" type="text" autocomplete="name" maxlength="120" required />
+                  </label>
+                  <label class="field">
+                    <span>WhatsApp / phone</span>
+                    <input name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="e.g. 071 234 5678" required />
+                  </label>
+                </div>
+                <label class="field">
+                  <span>Email <small>(optional, for your receipt)</small></span>
+                  <input name="email" type="email" autocomplete="email" maxlength="254" />
+                </label>
+                <label class="field">
+                  <span>Design ideas or notes <small>(optional)</small></span>
+                  <textarea name="notes" rows="3" maxlength="1000" placeholder="Colour, shape, length, inspiration…"></textarea>
+                </label>
+                <label class="toggle">
+                  <input type="checkbox" name="consent" required />
+                  <span>I agree to the <a href="#policies">booking policy</a>, and that KX Nyalungu Nails may use these details to manage my booking.</span>
+                </label>
+              </fieldset>
+
+              <p class="form-status" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <aside class="booking-summary" aria-label="Booking summary">
+            <h3>Your booking</h3>
+            <dl>
+              <div><dt>Service</dt><dd data-sum-service>—</dd></div>
+              <div><dt>When</dt><dd data-sum-when>—</dd></div>
+              <div><dt>Total</dt><dd data-sum-total>—</dd></div>
+              <div class="sum-deposit"><dt>Pay now (deposit)</dt><dd data-sum-deposit>—</dd></div>
+            </dl>
+            <button class="button button-pink button-lg button-block" type="button" data-submit-booking disabled>
+              Book &amp; pay deposit
+            </button>
+            <p class="small-print" data-pay-note>Secure payment by card or Instant EFT via PayFast. The balance is paid at your appointment.</p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Visit -->
+      <section class="section section-dark" id="visit">
+        <div class="container visit-grid">
+          <div>
+            <p class="section-kicker">Visit &amp; contact</p>
+            <h2>Come through.</h2>
+            <ul class="contact-list" data-contact></ul>
+            <div class="policies" id="policies">
+              <h3>Booking policy</h3>
+              <p data-field="policies"></p>
+            </div>
+          </div>
+          <div class="hours-card">
+            <h3>Opening hours</h3>
+            <table class="hours-table" data-hours></table>
+            <a class="button button-pink button-block" href="#book">Book now</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <span class="brand-small">KX Nyalungu Nails</span>
+        <span>© <span data-year></span> · Treat your nails, treat yourself 🌷</span>
+        <a href="admin/">Owner login</a>
+      </div>
+    </footer>
+
+    <!-- Gallery lightbox -->
+    <dialog class="lightbox" aria-label="Photo">
+      <button class="lightbox-close" type="button" aria-label="Close">×</button>
+      <img alt="" />
+      <p class="lightbox-caption"></p>
+    </dialog>
+
+    <!-- AI assistant -->
+    <div class="chat" data-chat>
+      <section class="chat-panel" id="chat-panel" aria-labelledby="chat-title" hidden>
+        <header class="chat-header">
+          <div>
+            <h2 id="chat-title">Ask KX ✨</h2>
+            <p>AI assistant · prices, specials, bookings</p>
+          </div>
+          <button class="chat-close" type="button" aria-label="Close chat">×</button>
+        </header>
+        <div class="chat-messages" aria-live="polite"></div>
+        <div class="chat-suggestions">
+          <button type="button" data-ask="How much is an acrylic mani?">Acrylic prices</button>
+          <button type="button" data-ask="Any specials right now?">Specials</button>
+          <button type="button" data-ask="Do you do house calls?">House calls</button>
+          <button type="button" data-ask="How does the deposit work?">Deposit</button>
+        </div>
+        <form class="chat-form">
+          <label class="visually-hidden" for="chat-input">Your question</label>
+          <input id="chat-input" type="text" maxlength="500" autocomplete="off" placeholder="Ask about prices, specials, bookings…" required />
+          <button type="submit" aria-label="Send">↑</button>
+        </form>
+        <p class="chat-note">Automated answers. Don't share card or banking details here.</p>
+      </section>
+      <button class="chat-toggle" type="button" aria-expanded="false" aria-controls="chat-panel">
+        <span aria-hidden="true">💅</span> Ask KX
+      </button>
+    </div>
+  </body>
+</html>

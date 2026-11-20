@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Your booking — KX Nyalungu Nails</title>
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .status-page { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; }
+      .status-card { width: min(100%, 520px); padding: 36px; display: grid; gap: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); text-align: center; }
+      .status-card h1 { font-size: clamp(32px, 6vw, 44px); }
+      .status-card p { color: var(--muted); }
+      .status-icon { font-size: 52px; }
+      .status-details { margin: 0; display: grid; gap: 8px; text-align: left; }
+      .status-details div { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+      .status-details dt { color: var(--muted); }
+      .status-details dd { margin: 0; font-weight: 700; text-align: right; }
+    </style>
+    <script src="config.js"></script>
+  </head>
+  <body>
+    <main class="status-page">
+      <section class="status-card" aria-live="polite">
+        <div class="status-icon" data-icon>⏳</div>
+        <h1 data-title>Checking your booking…</h1>
+        <p data-message>One moment while we confirm your payment.</p>
+        <dl class="status-details" data-details hidden>
+          <div><dt>Booking</dt><dd data-d-summary></dd></div>
+          <div><dt>When</dt><dd data-d-when></dd></div>
+          <div><dt>Deposit paid</dt><dd data-d-paid></dd></div>
+          <div><dt>Balance at appointment</dt><dd data-d-balance></dd></div>
+        </dl>
+        <a class="button button-pink button-lg" href="./">Back to KX Nyalungu Nails</a>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const cfg = window.KX_CONFIG || {};
+        const params = new URLSearchParams(location.search);
+        const id = params.get("b");
+        const token = params.get("t");
+        const el = (name) => document.querySelector(`[data-${name}]`);
+        const rand = (c) => `R${(c / 100).toFixed(c % 100 ? 2 : 0)}`;
+        const show = (icon, title, message) => {
+          el("icon").textContent = icon;
+          el("title").textContent = title;
+          el("message").textContent = message;
+        };
+
+        if (params.get("cancelled")) {
+          show("↩️", "Payment cancelled", "No payment was taken. Your time is held for 30 minutes — head back to book again, or WhatsApp us for help.");
+          return;
+        }
+        if (!id || !token || !cfg.supabaseUrl) {
+          show("⚠️", "Booking link incomplete", "Please use the link from your payment page, or WhatsApp us and we'll check for you.");
+          return;
+        }
+
+        let attempts = 0;
+        const check = async () => {
+          attempts += 1;
+          try {
+            const response = await fetch(`${cfg.supabaseUrl.replace(/\/$/, "")}/functions/v1/kx-api`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", apikey: cfg.supabaseAnonKey, Authorization: `Bearer ${cfg.supabaseAnonKey}` },
+              body: JSON.stringify({ action: "booking_status", id, token }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "We couldn't load your booking.");
+            const b = data.booking;
+            el("d-summary").textContent = b.summary;
+            el("d-when").textContent = new Date(b.starts_at).toLocaleString("en-ZA", { timeZone: "Africa/Johannesburg", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+            el("d-paid").textContent = rand(b.paid_cents);
+            el("d-balance").textContent = rand(Math.max(b.total_cents - b.paid_cents, 0));
+            el("details").hidden = false;
+
+            if (b.status === "confirmed" || b.status === "completed") {
+              show("💅", "You're booked!", "Your deposit is paid and your appointment is confirmed. See you soon!");
+            } else if (b.status === "pending_payment" && attempts < 10) {
+              show("⏳", "Confirming your payment…", "This usually takes a few seconds.");
+              setTimeout(check, 3000);
+            } else if (b.status === "pending_payment") {
+              show("⏳", "Payment still processing", "We haven't received confirmation from PayFast yet. If you paid, you'll be confirmed shortly — WhatsApp us if you're unsure.");
+            } else {
+              show("⚠️", "This booking isn't active", "It may have expired or been cancelled. Please book again or WhatsApp us.");
+            }
+          } catch (error) {
+            show("⚠️", "We couldn't load your booking", error.message);
+          }
+        };
+        check();
+      })();
+    </script>
+  </body>
+</html>

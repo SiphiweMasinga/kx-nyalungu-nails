@@ -1,0 +1,7 @@
+# Both functions are called by the public website (kx-api) and by PayFast (payfast-itn),
+# so they don't require a logged-in user. Each function does its own validation.
+[functions.kx-api]
+verify_jwt = false
+
+[functions.payfast-itn]
+verify_jwt = false

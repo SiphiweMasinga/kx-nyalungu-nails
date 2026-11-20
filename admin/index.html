@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Dashboard — KX Nyalungu Nails</title>
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="admin.css" />
+    <script src="../config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" defer></script>
+    <script src="admin.js" defer></script>
+  </head>
+  <body class="admin">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="../" aria-label="View the website">
+          <span class="brand-mark" aria-hidden="true">KX</span>
+          <span class="brand-name">Owner <em>dashboard</em></span>
+        </a>
+        <div class="admin-header-actions">
+          <a class="button button-ghost" href="../" target="_blank" rel="noopener">View site ↗</a>
+          <button class="button button-ghost" type="button" data-logout hidden>Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container admin-main">
+      <!-- Not connected yet -->
+      <section class="panel" data-view="setup" hidden>
+        <h1>Connect your website first</h1>
+        <p class="small-print">
+          The dashboard works once the site is connected to Supabase. Follow the steps in README.md,
+          then add your Supabase URL and public key to <code>config.js</code>.
+        </p>
+      </section>
+
+      <!-- Login -->
+      <section class="panel login-panel" data-view="login" hidden>
+        <h1>Welcome back 💅</h1>
+        <p class="small-print">Log in to update prices, post specials and manage bookings.</p>
+        <form class="admin-form" data-login-form>
+          <label class="field"><span>Email</span><input name="email" type="email" autocomplete="username" required /></label>
+          <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required /></label>
+          <button class="button button-pink button-lg" type="submit">Log in</button>
+          <p class="form-status" role="status"></p>
+        </form>
+      </section>
+
+      <!-- Dashboard -->
+      <section data-view="dashboard" hidden>
+        <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+          <button role="tab" data-tab="bookings" aria-selected="true">Bookings</button>
+          <button role="tab" data-tab="specials" aria-selected="false">Specials</button>
+          <button role="tab" data-tab="prices" aria-selected="false">Prices</button>
+          <button role="tab" data-tab="gallery" aria-selected="false">Gallery</button>
+          <button role="tab" data-tab="hours" aria-selected="false">Hours</button>
+          <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+        </nav>
+        <p class="toast" role="status" aria-live="polite" hidden></p>
+
+        <!-- Bookings -->
+        <div class="tab-panel" data-panel="bookings">
+          <div class="panel-head">
+            <h2>Bookings</h2>
+            <div class="filters">
+              <select data-booking-filter>
+                <option value="upcoming">Upcoming</option>
+                <option value="today">Today</option>
+                <option value="past">Past</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div class="stat-row" data-booking-stats></div>
+          <div class="list" data-bookings></div>
+        </div>
+
+        <!-- Specials -->
+        <div class="tab-panel" data-panel="specials" hidden>
+          <div class="panel-head">
+            <h2>Specials</h2>
+            <button class="button button-pink" type="button" data-new="special">+ New special</button>
+          </div>
+          <p class="small-print">Specials show on your website between their start and end dates, then disappear automatically. Link one to a service with a special price and bookings use that price.</p>
+          <div class="list" data-specials></div>
+        </div>
+
+        <!-- Prices -->
+        <div class="tab-panel" data-panel="prices" hidden>
+          <div class="panel-head">
+            <h2>Services &amp; prices</h2>
+            <button class="button button-pink" type="button" data-new="service">+ New service</button>
+          </div>
+          <div class="list" data-services></div>
+          <div class="panel-head">
+            <h2>Add-ons</h2>
+            <button class="button button-pink" type="button" data-new="addon">+ New add-on</button>
+          </div>
+          <div class="list" data-addons></div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="tab-panel" data-panel="gallery" hidden>
+          <div class="panel-head">
+            <h2>Gallery</h2>
+            <label class="button button-pink upload-button">
+              + Upload photos
+              <input type="file" accept="image/*" multiple data-gallery-upload hidden />
+            </label>
+          </div>
+          <p class="small-print">Tip: square or portrait photos look best. Click a caption to edit it.</p>
+          <div class="admin-gallery" data-gallery></div>
+        </div>
+
+        <!-- Hours -->
+        <div class="tab-panel" data-panel="hours" hidden>
+          <h2>Opening hours</h2>
+          <form class="admin-form" data-hours-form>
+            <div class="hours-edit" data-hours></div>
+            <button class="button button-pink" type="submit">Save hours</button>
+          </form>
+          <h2 class="mt">Days off</h2>
+          <p class="small-print">Block a date (holiday, training, fully booked) so clients can't book it.</p>
+          <form class="inline-form" data-blocked-form>
+            <input name="day" type="date" required />
+            <input name="reason" type="text" placeholder="Reason (optional)" maxlength="80" />
+            <button class="button button-pink" type="submit">Block date</button>
+          </form>
+          <div class="list" data-blocked></div>
+        </div>
+
+        <!-- Settings -->
+        <div class="tab-panel" data-panel="settings" hidden>
+          <h2>Business settings</h2>
+          <form class="admin-form" data-settings-form>
+            <fieldset class="step">
+              <legend>About &amp; contact</legend>
+              <label class="field"><span>Tagline</span><input name="tagline" maxlength="120" /></label>
+              <label class="field"><span>About</span><textarea name="about" rows="3" maxlength="600"></textarea></label>
+              <div class="field-row">
+                <label class="field"><span>Phone</span><input name="phone" maxlength="30" /></label>
+                <label class="field"><span>WhatsApp number <small>(international, e.g. 27716279835)</small></span><input name="whatsapp" maxlength="20" /></label>
+              </div>
+              <div class="field-row">
+                <label class="field"><span>Facebook name</span><input name="facebook" maxlength="80" /></label>
+                <label class="field"><span>Instagram handle</span><input name="instagram" maxlength="80" /></label>
+              </div>
+              <div class="field-row">
+                <label class="field"><span>Public email</span><input name="email" type="email" maxlength="254" /></label>
+                <label class="field"><span>Address / area</span><input name="address" maxlength="200" /></label>
+              </div>
+            </fieldset>
+            <fieldset class="step">
+              <legend>Bookings &amp; deposits</legend>
+              <div class="field-row">
+                <label class="field"><span>Deposit type</span>
+                  <select name="deposit_type">
+                    <option value="percent">Percentage of total</option>
+                    <option value="fixed">Fixed amount (R)</option>
+                    <option value="none">No deposit</option>
+                  </select>
+                </label>
+                <label class="field"><span>Deposit value <small>(% or rand)</small></span><input name="deposit_value" type="number" min="0" max="5000" /></label>
+              </div>
+              <div class="field-row">
+                <label class="field"><span>House call fee (R)</span><input name="house_call_fee" type="number" min="0" max="5000" /></label>
+                <label class="field"><span>Time between booking slots (min)</span><input name="slot_interval_minutes" type="number" min="10" max="120" /></label>
+              </div>
+              <div class="field-row">
+                <label class="field"><span>Minimum notice (hours)</span><input name="booking_notice_hours" type="number" min="0" max="168" /></label>
+                <label class="field"><span>Email me new bookings at <small>(private)</small></span><input name="owner_notification_email" type="email" maxlength="254" /></label>
+              </div>
+              <label class="field"><span>EFT details <small>(shown only when online payment isn't set up)</small></span><textarea name="eft_details" rows="2" maxlength="400"></textarea></label>
+              <label class="field"><span>Booking policy</span><textarea name="policies" rows="3" maxlength="1200"></textarea></label>
+            </fieldset>
+            <button class="button button-pink button-lg" type="submit">Save settings</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- Edit dialog used for specials, services and add-ons -->
+    <dialog class="edit-dialog">
+      <form class="admin-form" data-edit-form method="dialog">
+        <h2 data-edit-title></h2>
+        <div data-edit-fields></div>
+        <div class="dialog-actions">
+          <button class="button button-ghost" type="button" data-edit-cancel>Cancel</button>
+          <button class="button button-pink" type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
